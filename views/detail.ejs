@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= item %></title>
+  </head>
+  <body>
+    <h1><%= item%></h1>
+    <div>
+      <% if(item === "衣服") { %>
+      <p>厚衣</p>
+      <p>毛衣</p>
+      <%} else if (item === "褲子") { %>
+      <p>厚褲</p>
+      <p>薄褲</p>
+      <%} else if (item === "鞋子") { %>
+      <p>高筒</p>
+      <p>低筒</p>
+      <% }else if (item === "背包") { %>
+      <p>長途</p>
+      <p>中途</p>
+      <p>短途</p>
+      <% } %>
+    </div>
+    <a href="/product">上一頁</a>
+  </body>
+</html>
