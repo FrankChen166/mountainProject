@@ -4,17 +4,18 @@ const productSchema = new mongoose.Schema({
   name: {
     type: String,
     minLength: 1,
-  },
-  sort: {
-    type: String,
-    minLength: 1,
-  },
-  price: {
-    type: Number,
-    minLength: 0,
-  },
-  quantity: {
-    type: Number,
+    //   },
+    //   sort: {
+    //     type: String,
+    //     minLength: 1,
+    //   },
+    //   price: {
+    //     type: Number,
+    //     minLength: 0,
+    //   },
+    //   quantity: {
+    //     type: Number,
+    //   },
   },
 });
 
