@@ -8,7 +8,8 @@ const bodyPraser = require("body-parser");
 
 const app = express();
 
-const Product = require("./schema.js");
+const Product = require("./Schema/product");
+const Detail = require("./Schema/detail");
 
 mongoose
   .connect("mongodb://localhost:27017/mountain")
@@ -25,13 +26,9 @@ app.set("views", path.join(__dirname, "views"));
 app.use(bodyPraser.urlencoded({ extended: true }));
 app.use(bodyPraser.json());
 
-app.get("/product", (req, res) => {
-  res.render("home");
-});
-
-app.get("/productDetail/:item", (req, res) => {
-  const item = req.params.item;
-  res.render("detail", { item: item });
+app.get("/product", async (req, res) => {
+  const products = await Product.find({});
+  res.render("home", { products });
 });
 
 app.get("/productNew", (req, res) => {
@@ -45,7 +42,7 @@ app.post("/product", async (req, res) => {
     .save()
     .then(() => {
       console.log("product is saved success");
-      return res.render("show", { product });
+      res.redirect("/product");
     })
     .catch((err) => {
       console.log("error saving product");
@@ -53,10 +50,10 @@ app.post("/product", async (req, res) => {
     });
 });
 
-// app.get("/product/:id", async (req, res) => {
-//   const product = await Product.findById(req.params.id);
-//   res.render("show", { product });
-// });
+app.get("/product/:id", async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  res.render("show", { product });
+});
 
 app.listen(3000, () => {
   console.log("sucess");
