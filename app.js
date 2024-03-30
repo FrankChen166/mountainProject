@@ -50,9 +50,34 @@ app.post("/product", async (req, res) => {
     });
 });
 
+app.get("/product/:id/detail", async (req, res) => {
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+  res.render("detail", { product });
+});
+
+app.post("/product/:id", async (req, res) => {
+  const productId = req.params.id;
+  console.log(productId);
+  const { name, quantity, color } = req.body;
+
+  try {
+    const product = await Product.findById(productId);
+    const newDetail = new Detail({ name, quantity, color });
+    await newDetail.save();
+
+    await product.save();
+    res.redirect(`/product/${productId}`);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 app.get("/product/:id", async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  res.render("show", { product });
+  const productId = req.params.id;
+  const product = await Product.findById(productId);
+  const detail = await Detail.findById(productId);
+  res.render("show", { product, detail });
 });
 
 app.listen(3000, () => {

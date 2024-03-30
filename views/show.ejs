@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%=product.name %></title>
+    <title><%=product.name %>的細項</title>
   </head>
   <body>
     <ul>
-      <!-- <li><a href="/productDetail/衣服">衣服</a></li>
-      <li><a href="/productDetail褲子">褲子</a></li>
-      <li><a href="/productDetail/鞋子">鞋子</a></li>
-      <li><a href="/productDetail/背包">背包</a></li> -->
-      <li><a href=""><%= product.name%></a></li>
+      <li><%= detail.name%></li>
     </ul>
+
+    <a href="/product/<%= product._id%>/detail"> <p>新增細項</p></a>
+
+    <a href="/product">回到產品列</a>
   </body>
 </html>
