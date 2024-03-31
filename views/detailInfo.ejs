@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%=product.name %>的細項</title>
+  </head>
+  <body>
+    <div>
+      <ul>
+        <li>數量: <%= detail.quantity%></li>
+        <li>顏色: <%= detail.color%></li>
+        <li>進貨時間: <%= detail.arrivalDate%></li>
+      </ul>
+    </div>
+
+    <a href="/product/<%= product._id%>/edit">更改</a>
+
+    <a href="/product">回到產品列</a>
+    <a href="/product/<%= product._id%>">回到細項</a>
+  </body>
+</html>

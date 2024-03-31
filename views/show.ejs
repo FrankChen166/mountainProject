@@ -6,9 +6,19 @@
     <title><%=product.name %>的細項</title>
   </head>
   <body>
-    <ul>
-      <li><%= detail.name%></li>
-    </ul>
+    <div>
+      <ul>
+        <% for( let detail of product.details) { %>
+        <li>
+          <a
+            href="/product/<%= product._id %>/detail/detailInfo?detailId=<%= detail._id %>"
+          >
+            品項: <%= detail.name %>
+          </a>
+        </li>
+        <%}%>
+      </ul>
+    </div>
 
     <a href="/product/<%= product._id%>/detail"> <p>新增細項</p></a>
 
