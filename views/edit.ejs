@@ -3,44 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>edit product</title>
+    <title>Edit Product</title>
   </head>
   <body>
-    <form action="/product/<%= product._id%>?_method=PUT" method="post">
+    <h1>Edit Product</h1>
+    <form
+      action="/product/<%= product._id %>/detail/detailInfo?detailId=<%= detail._id %>"
+      method="post"
+    >
       <div>
-        <label for="name">品項</label>
+        <label for="name">Product Name:</label>
         <input
           type="text"
           name="name"
           id="name"
-          value="<%= product.details.name %>"
+          required
+          value=" <%= detail.name %>"
         />
       </div>
       <div>
-        <label for="quantity">數量</label>
+        <label for="quantity">Product Quantity:</label>
         <input
           type="number"
           name="quantity"
           id="quantity"
-          value="<%= product.details.quantity %>"
+          required
+          value="<%= detail.quantity%>"
         />
       </div>
       <div>
-        <label for="color">顏色</label>
+        <label for="color">Product Color:</label>
         <input
           type="text"
           name="color"
           id="color"
-          value="<%= product.details.color %>"
+          required
+          value="<%= detail.color %>"
         />
       </div>
-      <div>
-        <label for="arrivalDate">進貨時間</label>
-        <input type="month" name="arrivalDate" id="arrivalDate" />
-      </div>
-
-      <button>更改</button>
+      <button type="submit">Update</button>
     </form>
-    <a href="/product">回到主頁</a>
+    <a href="/product/<%= product._id%>">回到細項</a>
   </body>
 </html>
