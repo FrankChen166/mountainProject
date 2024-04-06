@@ -120,29 +120,39 @@ app.get("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
   }
 });
 
-app.put("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
+app.post("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
   try {
-    const productId = req.params.id;
     const detailId = req.params.detailId;
+    const { name, quantity, color } = req.body;
 
-    // 检查产品和详细信息是否存在
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).send("Product not found");
-    }
+    const updatedDetail = await Detail.findByIdAndUpdate(
+      detailId,
+      { name, quantity, color },
+      { new: true }
+    );
 
-    const detail = await Detail.findById(detailId);
-    if (!detail) {
+    if (!updatedDetail) {
       return res.status(404).send("Detail not found");
     }
 
-    // 更新详细信息对象
-    await Detail.findByIdAndUpdate(detailId, req.body);
-
-    // 重定向到详情页或其他适当的页面
-    res.redirect("/product");
+    res.redirect(
+      `/product/${req.params.id}/detail/detailInfo?detailId=${detailId}`
+    );
   } catch (err) {
     console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
+  try {
+    const detailId = req.params.detailId;
+    const deleteResult = await Detail.deleteOne({ _id: detailId });
+    console.log(`Deleted detail with ID ${detailId}:`, deleteResult);
+    // res.sendStatus(204); // 发送成功响应，表示删除成功
+    return res.redirect("/product");
+  } catch (e) {
+    console.error(e);
     res.status(500).send("Internal Server Error");
   }
 });
