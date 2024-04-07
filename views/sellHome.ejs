@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>銷貨系統</title>
+  </head>
+  <body>
+    <h1>銷貨</h1>
+    <form action="/sell" method="POST">
+      <div>
+        <label for="productName">產品品項</label>
+        <input type="text" id="productName" name="productName" />
+      </div>
+      <div>
+        <label for="productDetail">產品名稱</label>
+        <input type="text" id="productDetail" name="productDetail" />
+      </div>
+      <div>
+        <label for="quantity">賣出數量</label>
+        <input type="number" id="quantity" name="quantity" />
+      </div>
+      <div>
+        <button>送出</button>
+      </div>
+    </form>
+  </body>
+</html>

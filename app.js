@@ -10,7 +10,7 @@ const app = express();
 
 const Product = require("./Schema/product");
 const Detail = require("./Schema/detail");
-const product = require("./Schema/product");
+const Sell = require("./Schema/sell");
 const methodOverride = require("method-override");
 
 mongoose
@@ -23,6 +23,7 @@ mongoose
   });
 
 app.set("view engine", "ejs");
+
 app.set("views", path.join(__dirname, "views"));
 
 app.use(bodyPraser.urlencoded({ extended: true }));
@@ -172,6 +173,25 @@ app.delete("/product/:id", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/sell", (req, res) => {
+  res.render("sellHome");
+});
+
+app.post("/sell", async (req, res) => {
+  try {
+    const { productName, productDetail, quantity } = req.body;
+    let sell = await Sell.findOneAndUpdate(
+      { productName: productName, productDetail: productDetail },
+      { $inc: { quantity: parseInt(quantity) } },
+      { new: true, upsert: true }
+    );
+    res.render("sellHome");
+  } catch (e) {
+    console.log(e);
+    res.status(500).send("error");
   }
 });
 
