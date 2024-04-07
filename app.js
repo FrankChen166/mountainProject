@@ -157,6 +157,20 @@ app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
   }
 });
 
+app.delete("/product/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log({ id });
+    const deleteResult = await Product.deleteOne({ _id: id });
+    console.log(`Deleted prodict with ID ${id}:`, deleteResult);
+    // res.sendStatus(204); // 发送成功响应，表示删除成功
+    return res.redirect("/product");
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.listen(3000, () => {
   console.log("sucess");
 });

@@ -19,6 +19,9 @@
         <%}%>
       </ul>
     </div>
+    <form action="/product/<%= product._id %>?_method=DELETE" method="post">
+      <button type="submit">刪除細項</button>
+    </form>
 
     <a href="/product/<%= product._id%>/detail"> <p>新增細項</p></a>
 
