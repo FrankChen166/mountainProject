@@ -29,9 +29,13 @@ app.use(bodyPraser.urlencoded({ extended: true }));
 app.use(bodyPraser.json());
 app.use(methodOverride("_method"));
 
+app.get("/home", (req, res) => {
+  res.render("home");
+});
+
 app.get("/product", async (req, res) => {
   const products = await Product.find({});
-  res.render("home", { products });
+  res.render("product", { products });
 });
 
 app.get("/productNew", (req, res) => {
@@ -150,7 +154,7 @@ app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
     const deleteResult = await Detail.deleteOne({ _id: detailId });
     console.log(`Deleted detail with ID ${detailId}:`, deleteResult);
     // res.sendStatus(204); // 发送成功响应，表示删除成功
-    return res.redirect("/product");
+    return res.redirect(`/product/${req.params.id}`);
   } catch (e) {
     console.error(e);
     res.status(500).send("Internal Server Error");
@@ -162,7 +166,7 @@ app.delete("/product/:id", async (req, res) => {
     const id = req.params.id;
     console.log({ id });
     const deleteResult = await Product.deleteOne({ _id: id });
-    console.log(`Deleted prodict with ID ${id}:`, deleteResult);
+    console.log(`Deleted product with ID ${id}:`, deleteResult);
     // res.sendStatus(204); // 发送成功响应，表示删除成功
     return res.redirect("/product");
   } catch (e) {

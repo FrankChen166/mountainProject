@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>朋友家登山社進貨系統</title>
+  </head>
+  <body>
+    <h1>朋友家登山社</h1>
+    <% for (let product of products) { %>
+    <div>
+      <ul>
+        <li><a href="/product/<%= product._id%>"><%= product.name%></a></li>
+      </ul>
+    </div>
+    <%}%>
+    <ul>
+      <!-- <li><a href="/productDetail/衣服">衣服</a></li>
+      <li><a href="/productDetail褲子">褲子</a></li>
+      <li><a href="/productDetail/鞋子">鞋子</a></li>
+      <li><a href="/productDetail/背包">背包</a></li> -->
+    </ul>
+
+    <a href="/productNew">新增</a>
+  </body>
+</html>
