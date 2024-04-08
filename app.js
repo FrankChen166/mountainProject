@@ -5,6 +5,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 
 const bodyPraser = require("body-parser");
+const fs = require("fs").promises;
 
 const app = express();
 
@@ -30,6 +31,23 @@ app.use(bodyPraser.urlencoded({ extended: true }));
 app.use(bodyPraser.json());
 app.use(methodOverride("_method"));
 
+async function saveDataToJsonFile(data, filename) {
+  try {
+    const jsonData = await fs.readFile(filename, "utf-8");
+    let parsedData = [];
+    if (jsonData) {
+      parsedData = JSON.parse(jsonData);
+    }
+    console.log(parsedData);
+    parsedData.push(data);
+    await fs.writeFile(filename, JSON.stringify(parsedData, null, 2));
+    console.log(`data success to ${filename}`);
+  } catch (e) {
+    console.log(`error saving data a ${filename}`, e);
+    throw e;
+  }
+}
+
 app.get("/home", (req, res) => {
   res.render("home");
 });
@@ -46,10 +64,11 @@ app.get("/productNew", (req, res) => {
 app.post("/product", async (req, res) => {
   const productData = req.body;
   const product = new Product(productData);
-  await product
-    .save()
+  await product.save();
+  await saveDataToJsonFile(productData, "product.json") //加入json
     .then(() => {
       console.log("product is saved success");
+
       res.redirect("/product");
     })
     .catch((err) => {
@@ -78,6 +97,7 @@ app.post("/product/:id", async (req, res) => {
   try {
     const newDetail = new Detail({ name, quantity, color });
     await newDetail.save();
+    await saveDataToJsonFile({ name, quantity, color }, "details.json"); //加入json
     const product = await Product.findById(productId);
     product.details.push(newDetail._id);
     await product.save();
@@ -98,6 +118,27 @@ app.get("/product/:id/detail/detailInfo", async (req, res) => {
     const detailId = req.query.detailId;
     const detail = await Detail.findById(detailId);
     res.render("detailInfo", { product, detail });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/product/:id/detail/detailInfo/:detailId/fetch", async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId).populate("details");
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+    const detailId = req.params.detailId;
+    const detail = await Detail.findById(detailId); // 根据detailId查找相应的详细信息
+    if (!detail) {
+      return res.status(404).send("Detail not found");
+    }
+
+    // 渲染模板并传递产品和详细信息对象
+    res.render("fetch", { product, detail });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
@@ -176,15 +217,21 @@ app.delete("/product/:id", async (req, res) => {
   }
 });
 
-app.get("/sell", (req, res) => {
-  res.render("sellHome");
+app.get("/sell", async (req, res) => {
+  // const productId = req.query.productId;
+  const products = await Product.find();
+  res.render("sellHome", { products });
 });
 
 app.post("/sell", async (req, res) => {
   try {
-    const { productName, productDetail, quantity } = req.body;
+    const { productName, productDetail, productColor, quantity } = req.body;
     let sell = await Sell.findOneAndUpdate(
-      { productName: productName, productDetail: productDetail },
+      {
+        productName: productName,
+        productDetail: productDetail,
+        productColor: productColor,
+      },
       { $inc: { quantity: parseInt(quantity) } },
       { new: true, upsert: true }
     );

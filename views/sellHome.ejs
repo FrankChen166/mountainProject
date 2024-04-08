@@ -10,11 +10,20 @@
     <form action="/sell" method="POST">
       <div>
         <label for="productName">產品品項</label>
-        <input type="text" id="productName" name="productName" />
+        <select id="productName" name="productName">
+          <option value="" selected>請選擇</option>
+          <% for(let product of products){ %>
+          <option value="<%= product._id %>"><%= product.name %></option>
+          <% } %>
+        </select>
       </div>
       <div>
         <label for="productDetail">產品名稱</label>
         <input type="text" id="productDetail" name="productDetail" />
+      </div>
+      <div>
+        <label for="productColor">產品顏色</label>
+        <input type="text" id="productColor" name="productColor" />
       </div>
       <div>
         <label for="quantity">賣出數量</label>
@@ -25,4 +34,46 @@
       </div>
     </form>
   </body>
+  <script>
+    document
+      .getElementById("productName")
+      .addEventListener("change", async function () {
+        const productId = this.value;
+        console.log(productId);
+        if (productId) {
+          try {
+            const detailresponse = await fetch(
+              `/product/${productId}/detail/detailInfo`
+            );
+            const { detailId } = await detailresponse.json();
+            console.log({ detailId });
+            const response = await fetch(
+              `/product/${productId}/detail/detailInfo/${detailId}/fetch`
+            );
+
+            const details = await response.json();
+            console.log(details);
+            const productDetailSelect =
+              document.getElementById("productDetail");
+            const productColorSelect = document.getElementById("productColor");
+            productColorSelect.innerHTML = "";
+            productDetailSelect.innerHTML = "";
+
+            details.forEach((detail) => {
+              const option = document.createElement("option");
+              option.value = detail._id;
+              option.textContent = ` ${detail.name}- ${detail.color}`;
+              productDetailSelect.appendChild(option);
+
+              const colorOption = document.createElement("option");
+              colorOption.value = detail.color;
+              colorOption.textContent = detail.color;
+              productColorSelect.appendChild(colorOption);
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      });
+  </script>
 </html>

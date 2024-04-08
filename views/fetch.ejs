@@ -16,22 +16,5 @@
       </ul>
       <%}%>
     </div>
-
-    <% if (detail && detail._id) { %>
-    <a
-      href="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>/edit"
-      >更改資料</a
-    >
-
-    <form
-      action="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>?_method=DELETE"
-      method="post"
-    >
-      <button type="submit">刪除細項</button>
-    </form>
-
-    <a href="/product">回到產品列</a>
-    <a href="/product/<%= product._id%>">回到細項</a>
-    <% } %>
   </body>
 </html>
