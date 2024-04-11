@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -37,43 +37,119 @@
   <script>
     document
       .getElementById("productName")
-      .addEventListener("change", async function () {
+      .addEventListener("change", function () {
         const productId = this.value;
         console.log(productId);
-        if (productId) {
-          try {
-            const detailresponse = await fetch(
-              `/product/${productId}/detail/detailInfo`
-            );
-            const { detailId } = await detailresponse.json();
-            console.log({ detailId });
-            const response = await fetch(
-              `/product/${productId}/detail/detailInfo/${detailId}/fetch`
-            );
 
-            const details = await response.json();
-            console.log(details);
+        // 发起AJAX请求获取JSON数据
+        fetch(`/products/${productId}`)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data.details);
+            // 更新产品名稱输入框的选项
             const productDetailSelect =
               document.getElementById("productDetail");
+            productDetailSelect.innerHTML = "";
+            data.details.forEach((detail) => {
+              const option = document.createElement("option");
+              option.value = detail.name;
+              option.textContent = detail.name;
+              productDetailSelect.appendChild(option);
+            });
+
+            // 更新产品顏色输入框的选项
             const productColorSelect = document.getElementById("productColor");
             productColorSelect.innerHTML = "";
-            productDetailSelect.innerHTML = "";
-
-            details.forEach((detail) => {
+            data.details.forEach((detail) => {
               const option = document.createElement("option");
-              option.value = detail._id;
-              option.textContent = ` ${detail.name}- ${detail.color}`;
-              productDetailSelect.appendChild(option);
-
-              const colorOption = document.createElement("option");
-              colorOption.value = detail.color;
-              colorOption.textContent = detail.color;
-              productColorSelect.appendChild(colorOption);
+              option.value = detail.color;
+              option.textContent = detail.color;
+              productColorSelect.appendChild(option);
             });
-          } catch (e) {
-            console.log(e);
-          }
-        }
+          })
+          .catch((error) => console.error("Error fetching JSON:", error));
       });
   </script>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>銷貨系統</title>
+  </head>
+  <body>
+    <h1>銷貨</h1>
+    <form action="/sell" method="POST">
+      <div>
+        <label for="productName">產品品項</label>
+        <select id="productName" name="productName">
+          <option value="" selected>請選擇</option>
+          <% for(let product of products){ %>
+          <option value="<%= product._id %>"><%= product.name %></option>
+          <% } %>
+        </select>
+      </div>
+      <div>
+        <label for="productDetail">產品名稱</label>
+
+        <select id="productDetail" name="productDetail">
+          <option value="" selected>請選擇</option>
+        </select>
+      </div>
+      <div>
+        <label for="productColor">產品顏色</label>
+
+        <select id="productColor" name="productColor">
+          <option value="" selected>請選擇</option>
+        </select>
+      </div>
+      <div>
+        <label for="quantity">賣出數量</label>
+        <input type="number" id="quantity" name="quantity" />
+      </div>
+      <div>
+        <button type="submit">送出</button>
+      </div>
+    </form>
+
+    <script>
+      document
+        .getElementById("productName")
+        .addEventListener("change", function () {
+          const productId = this.value;
+          console.log(productId);
+
+          // 发起AJAX请求获取JSON数据
+          fetch(`/products/${productId}`)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data.details);
+              // 更新产品名稱输入框的选项
+              const productDetailSelect =
+                document.getElementById("productDetail");
+              productDetailSelect.innerHTML = "";
+              data.details.forEach((detail) => {
+                const option = document.createElement("option");
+                option.value = detail.name;
+                option.textContent = detail.name;
+                productDetailSelect.appendChild(option);
+              });
+
+              // 更新产品顏色输入框的选项
+              const productColorSelect =
+                document.getElementById("productColor");
+              productColorSelect.innerHTML = "";
+              data.details.forEach((detail) => {
+                const option = document.createElement("option");
+                option.value = detail.color;
+                option.textContent = detail.color;
+                productColorSelect.appendChild(option);
+              });
+            })
+            .catch((error) => console.error("Error fetching JSON:", error));
+        });
+    </script>
+  </body>
 </html>
