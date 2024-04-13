@@ -139,24 +139,6 @@ app.post("/product/:id", async (req, res) => {
   }
 });
 
-// app.post("/product/:id", async (req, res) => {
-//   const productId = req.params.id;
-//   const { name, quantity, color } = req.body;
-
-//   try {
-//     const newDetail = new Detail({ name, quantity, color });
-//     await newDetail.save();
-
-//     const product = await Product.findById(productId);
-//     product.details.push(newDetail._id);
-//     await product.save();
-
-//     res.redirect(`/product/${productId}`);
-//   } catch (err) {
-//     res.status(500).send(err);
-//   }
-// });
-
 app.get("/product/:id/detail/detailInfo", async (req, res) => {
   try {
     const productId = req.params.id;
@@ -174,52 +156,6 @@ app.get("/product/:id/detail/detailInfo", async (req, res) => {
   }
 });
 
-app.get("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
-  try {
-    const productId = req.params.id;
-
-    const product = await Product.findById(productId).populate("details");
-    if (!product) {
-      return res.status(404).send("Product not found");
-    }
-
-    const detailId = req.params.detailId;
-    const detail = await Detail.findById(detailId); // 根据detailId查找相应的详细信息
-    if (!detail) {
-      return res.status(404).send("Detail not found");
-    }
-
-    // 渲染模板并传递产品和详细信息对象
-    res.render("edit", { product, detail });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-// app.post("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
-//   try {
-//     const detailId = req.params.detailId;
-//     const { name, quantity, color } = req.body;
-
-//     const updatedDetail = await Detail.findByIdAndUpdate(
-//       detailId,
-//       { name, quantity, color },
-//       { new: true }
-//     );
-
-//     if (!updatedDetail) {
-//       return res.status(404).send("Detail not found");
-//     }
-
-//     res.redirect(
-//       `/product/${req.params.id}/detail/detailInfo?detailId=${detailId}`
-//     );
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
 app.post("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
   try {
     const productId = req.params.id;
@@ -262,19 +198,6 @@ app.post("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-// app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
-//   try {
-//     const detailId = req.params.detailId;
-//     const deleteResult = await Detail.deleteOne({ _id: detailId });
-//     console.log(`Deleted detail with ID ${detailId}:`, deleteResult);
-//     // res.sendStatus(204); // 发送成功响应，表示删除成功
-//     return res.redirect(`/product/${req.params.id}`);
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
 
 app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
   try {
@@ -349,7 +272,8 @@ app.get("/sell", async (req, res) => {
   res.render("sellHome", { products });
 });
 
-app.get("/products/:productId", (req, res) => {
+app.get("/products/:productId", async (req, res) => {
+  const products = await Product.find();
   const productId = req.params.productId;
   const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
   fs.readFile(filePath, "utf8", (err, data) => {
@@ -365,17 +289,59 @@ app.get("/products/:productId", (req, res) => {
 
 app.post("/sell", async (req, res) => {
   try {
+    const products = await Product.find();
+    const productId = req.body.productId; // 使用 req.body.productId
+    // const products = await Product.findById(productId);
     const { productName, productDetail, productColor, quantity } = req.body;
-    let sell = await Sell.findOneAndUpdate(
-      {
-        productName: productName,
-        productDetail: productDetail,
-        productColor: productColor,
-      },
-      { $inc: { quantity: parseInt(quantity) } },
-      { new: true, upsert: true }
-    );
-    res.render("sellHome");
+
+    const newData = {
+      productName: productName,
+      productDetail: productDetail,
+      productColor: productColor,
+      quantity: parseInt(quantity),
+    };
+
+    const filePath = path.join(__dirname, "Sell", `${productId}.json`);
+
+    fs.readFile(filePath, "utf-8", (err, data) => {
+      if (err) {
+        console.log("json file does not exist, creating a new one");
+        fs.writeFile(filePath, JSON.stringify([newData], null, 2), (err) => {
+          if (err) {
+            console.log("error writing file", err);
+            return res.status(500).send("error writing file");
+          }
+          console.log("New JSON file created and data saved successfully");
+          res.render("sellHome", { products: products });
+        });
+      } else {
+        let jsonData = JSON.parse(data);
+        let found = false;
+
+        for (let i = 0; i < jsonData.length; i++) {
+          if (
+            jsonData[i].productName === productName &&
+            jsonData[i].productDetail === productDetail &&
+            jsonData[i].productColor === productColor // 修改這裡，將 jsonData 改為 jsonData[i]
+          ) {
+            jsonData[i].quantity += parseInt(quantity);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          jsonData.push(newData);
+        }
+        fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), (err) => {
+          if (err) {
+            console.log("error writing file", err);
+            return res.status(500).send("error writing ");
+          }
+          console.log("JSON file updated successfully");
+          res.render("sellHome", { products: products });
+        });
+      }
+    });
   } catch (e) {
     console.log(e);
     res.status(500).send("error");

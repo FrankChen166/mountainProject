@@ -1,77 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>銷貨系統</title>
-  </head>
-  <body>
-    <h1>銷貨</h1>
-    <form action="/sell" method="POST">
-      <div>
-        <label for="productName">產品品項</label>
-        <select id="productName" name="productName">
-          <option value="" selected>請選擇</option>
-          <% for(let product of products){ %>
-          <option value="<%= product._id %>"><%= product.name %></option>
-          <% } %>
-        </select>
-      </div>
-      <div>
-        <label for="productDetail">產品名稱</label>
-        <input type="text" id="productDetail" name="productDetail" />
-      </div>
-      <div>
-        <label for="productColor">產品顏色</label>
-        <input type="text" id="productColor" name="productColor" />
-      </div>
-      <div>
-        <label for="quantity">賣出數量</label>
-        <input type="number" id="quantity" name="quantity" />
-      </div>
-      <div>
-        <button>送出</button>
-      </div>
-    </form>
-  </body>
-  <script>
-    document
-      .getElementById("productName")
-      .addEventListener("change", function () {
-        const productId = this.value;
-        console.log(productId);
-
-        // 发起AJAX请求获取JSON数据
-        fetch(`/products/${productId}`)
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data.details);
-            // 更新产品名稱输入框的选项
-            const productDetailSelect =
-              document.getElementById("productDetail");
-            productDetailSelect.innerHTML = "";
-            data.details.forEach((detail) => {
-              const option = document.createElement("option");
-              option.value = detail.name;
-              option.textContent = detail.name;
-              productDetailSelect.appendChild(option);
-            });
-
-            // 更新产品顏色输入框的选项
-            const productColorSelect = document.getElementById("productColor");
-            productColorSelect.innerHTML = "";
-            data.details.forEach((detail) => {
-              const option = document.createElement("option");
-              option.value = detail.color;
-              option.textContent = detail.color;
-              productColorSelect.appendChild(option);
-            });
-          })
-          .catch((error) => console.error("Error fetching JSON:", error));
-      });
-  </script>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -112,36 +38,81 @@
       <div>
         <button type="submit">送出</button>
       </div>
+      <input type="hidden" id="productId" name="productId" value="" />
     </form>
-
+    <a href="/product"><button>切換至進貨系統</button></a>
     <script>
       document
         .getElementById("productName")
         .addEventListener("change", function () {
           const productId = this.value;
           console.log(productId);
-
+          document.getElementById("productId").value = productId;
           // 发起AJAX请求获取JSON数据
           fetch(`/products/${productId}`)
             .then((response) => response.json())
             .then((data) => {
               console.log(data.details);
+
               // 更新产品名稱输入框的选项
               const productDetailSelect =
                 document.getElementById("productDetail");
               productDetailSelect.innerHTML = "";
+
+              // 使用集合来存储已经出现过的产品名稱
+              const uniqueNames = new Set();
+
               data.details.forEach((detail) => {
-                const option = document.createElement("option");
-                option.value = detail.name;
-                option.textContent = detail.name;
-                productDetailSelect.appendChild(option);
+                // 检查产品名稱是否已经存在于集合中
+                if (!uniqueNames.has(detail.name)) {
+                  const option = document.createElement("option");
+                  option.value = detail.name;
+                  option.textContent = detail.name;
+                  productDetailSelect.appendChild(option);
+
+                  // 将产品名稱添加到集合中
+                  uniqueNames.add(detail.name);
+                }
               });
 
               // 更新产品顏色输入框的选项
               const productColorSelect =
                 document.getElementById("productColor");
               productColorSelect.innerHTML = "";
-              data.details.forEach((detail) => {
+              const selectedDetail = productDetailSelect.value;
+              const filteredColors = data.details.filter(
+                (detail) => detail.name === selectedDetail
+              );
+              filteredColors.forEach((detail) => {
+                const option = document.createElement("option");
+                option.value = detail.color;
+                option.textContent = detail.color;
+                productColorSelect.appendChild(option);
+              });
+            })
+            .catch((error) => console.error("Error fetching JSON:", error));
+        });
+
+      document
+        .getElementById("productDetail")
+        .addEventListener("change", function () {
+          const productName = document.getElementById("productName").value;
+          const selectedDetail = this.value;
+
+          // 发起AJAX请求获取JSON数据
+          fetch(`/products/${productName}`)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data.details);
+
+              // 更新产品顏色输入框的选项
+              const productColorSelect =
+                document.getElementById("productColor");
+              productColorSelect.innerHTML = "";
+              const filteredColors = data.details.filter(
+                (detail) => detail.name === selectedDetail
+              );
+              filteredColors.forEach((detail) => {
                 const option = document.createElement("option");
                 option.value = detail.color;
                 option.textContent = detail.color;
