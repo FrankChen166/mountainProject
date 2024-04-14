@@ -47,22 +47,6 @@ app.get("/productNew", (req, res) => {
   res.render("new");
 });
 
-// app.post("/product", async (req, res) => {
-//   const productData = req.body;
-//   const product = new Product(productData);
-//   await product
-//     .save()
-//     .then(() => {
-//       console.log("product is saved success");
-
-//       res.redirect("/product");
-//     })
-//     .catch((err) => {
-//       console.log("error saving product");
-//       return res.status(500).send(err);
-//     });
-// });
-
 app.get("/product/:id", async (req, res) => {
   const productId = req.params.id;
   const product = await Product.findById(productId).populate("details");
@@ -231,20 +215,6 @@ app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-// app.delete("/product/:id", async (req, res) => {
-//   try {
-//     const id = req.params.id;
-//     console.log({ id });
-//     const deleteResult = await Product.deleteOne({ _id: id });
-//     console.log(`Deleted product with ID ${id}:`, deleteResult);
-//     // res.sendStatus(204); // 发送成功响应，表示删除成功
-//     return res.redirect("/product");
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
 
 app.delete("/product/:id", async (req, res) => {
   try {
