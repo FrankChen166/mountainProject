@@ -245,7 +245,9 @@ app.get("/sell", async (req, res) => {
 app.get("/products/:productId", async (req, res) => {
   const products = await Product.find();
   const productId = req.params.productId;
-  const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
+  // const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
+  const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
+
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
       console.error(err);
