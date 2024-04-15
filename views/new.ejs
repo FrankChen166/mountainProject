@@ -9,19 +9,31 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <%- include("../views/partials/navbar.ejs") %>
     <title>Document</title>
   </head>
   <body>
-    <%- include("../views/partials/navbar.ejs") %>
-    <form action="/product" method="post">
-      <div>
-        <label for="name">品項</label>
-        <input type="text" name="name" id="name" />
+    <div class="container">
+      <div class="row mt-3">
+        <div class="col">
+          <form action="/product" method="post">
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="inputGroup-sizing-default"
+                >品項</span
+              >
+              <input
+                type="text"
+                class="form-control"
+                aria-label="Sizing example input"
+                aria-describedby="inputGroup-sizing-default"
+                placeholder="請輸入品項"
+              />
+            </div>
+            <button type="button" class="btn btn-primary btn-sm">新增</button>
+          </form>
+        </div>
       </div>
-
-      <button>新增</button>
-    </form>
-    <a href="/product">回到主頁</a>
+    </div>
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"

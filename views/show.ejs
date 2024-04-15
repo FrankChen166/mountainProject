@@ -27,13 +27,32 @@
         <%}%>
       </ul>
     </div>
-    <form action="/product/<%= product._id %>?_method=DELETE" method="post">
-      <button type="submit">刪除細項</button>
-    </form>
-
-    <a href="/product/<%= product._id%>/detail"> <p>新增細項</p></a>
-
-    <a href="/product">回到產品列</a>
+    <div class="row row-cols-auto">
+      <div class="col">
+        <form action="/product/<%= product._id %>?_method=DELETE" method="post">
+          <button type="submit" class="btn btn-danger btn-sm">刪除細項</button>
+          <!-- <button type="submit">刪除細項</button> -->
+        </form>
+      </div>
+      <div class="col">
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          onclick="window.location.href='/product/<%= product._id%>/detail'"
+        >
+          新增細項
+        </button>
+      </div>
+      <div class="col">
+        <button
+          type="button"
+          class="btn btn-info btn-sm"
+          onclick="window.location.href='/product'"
+        >
+          回到產品列
+        </button>
+      </div>
+    </div>
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
