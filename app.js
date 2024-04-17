@@ -140,6 +140,29 @@ app.get("/product/:id/detail/detailInfo", async (req, res) => {
   }
 });
 
+app.get("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId).populate("details");
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    const detailId = req.params.detailId;
+    const detail = await Detail.findById(detailId); // 根据detailId查找相应的详细信息
+    if (!detail) {
+      return res.status(404).send("Detail not found");
+    }
+
+    // 渲染模板并传递产品和详细信息对象
+    res.render("edit", { product, detail });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.post("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
   try {
     const productId = req.params.id;
@@ -190,10 +213,16 @@ app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
 
     // 從資料庫中刪除細節資料
     const deleteResult = await Detail.deleteOne({ _id: detailId });
+
     console.log(`Deleted detail with ID ${detailId}:`, deleteResult);
 
     // 讀取現有的 JSON 檔案
     const filePath = path.join(__dirname, "products", `${productId}.json`);
+    const bigProductFilePath = path.join(
+      __dirname,
+      "bigProduct",
+      `${productId}.json`
+    );
     let existingData = JSON.parse(fs.readFileSync(filePath, "utf8"));
 
     // 找到需要刪除的細節
@@ -225,8 +254,30 @@ app.delete("/product/:id", async (req, res) => {
     console.log(`Deleted product with ID ${productId}:`, deleteResult);
 
     // 從 JSON 檔案中刪除產品
-    const filePath = path.join(__dirname, "products", `${productId}.json`);
-    fs.unlinkSync(filePath);
+    const productFilePath = path.join(
+      __dirname,
+      "products",
+      `${productId}.json`
+    );
+    const bigProductFilePath = path.join(
+      __dirname,
+      "bigProduct",
+      `${productId}.json`
+    );
+
+    // 如果存在 bigProduct 文件夹中的 productId.json 文件，就删除它
+    if (fs.existsSync(bigProductFilePath)) {
+      fs.unlinkSync(bigProductFilePath);
+    }
+
+    // 检查是否存在 products 文件夹中的 productId.json 文件，并读取其内容以查看是否存在细项
+    if (fs.existsSync(productFilePath)) {
+      const existingData = JSON.parse(fs.readFileSync(productFilePath, "utf8"));
+      if (existingData.details && existingData.details.length > 0) {
+        // 如果大项内有细项存在，删除 products 文件夹中的 productId.json 文件
+        fs.unlinkSync(productFilePath);
+      }
+    }
 
     // 發送成功响应，表示刪除成功
     return res.redirect("/product");
