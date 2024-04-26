@@ -14,6 +14,7 @@ const Detail = require("./Schema/detail");
 const Sell = require("./Schema/sell");
 const methodOverride = require("method-override");
 const { stringify } = require("querystring");
+const detail = require("./Schema/detail");
 
 const writeFileAsync = promisify(fs.writeFile);
 
@@ -310,12 +311,93 @@ app.get("/products/:productId", async (req, res) => {
   });
 });
 
+// app.post("/sell", async (req, res) => {
+//   try {
+//     const productId = req.body.productId;
+//     const product = await Product.findById(productId).populate("details"); // 使用 req.body.productId
+//     const { productName, productDetail, productColor, quantity } = req.body;
+
+//     const detailId = req.query.detailId;
+//     const detail = await Detail.findById(detailId);
+//     const products = await Product.find();
+
+//     const newSell = new Sell({
+//       productName: productName,
+//       productDetail: productDetail,
+//       productColor: productColor,
+//       quantity: quantity,
+//     });
+
+//     await newSell.save();
+//     detail.quantity -= quantity;
+//     const updatedDetail = await Detail.findByIdAndUpdate(detailId, newData, {
+//       new: true,
+//     });
+//     const newData = {
+//       productName: productName,
+//       productDetail: productDetail,
+//       productColor: productColor,
+//       quantity: parseInt(quantity),
+//     };
+
+//     const filePath = path.join(__dirname, "Sell", `${productId}.json`);
+
+//     fs.readFile(filePath, "utf-8", (err, data) => {
+//       if (err) {
+//         console.log("json file does not exist, creating a new one");
+//         fs.writeFile(filePath, JSON.stringify([newData], null, 2), (err) => {
+//           if (err) {
+//             console.log("error writing file", err);
+//             return res.status(500).send("error writing file");
+//           }
+//           console.log("New JSON file created and data saved successfully");
+//           res.render("sellHome", { products: products });
+//         });
+//       } else {
+//         let jsonData = JSON.parse(data);
+//         let found = false;
+
+//         for (let i = 0; i < jsonData.length; i++) {
+//           if (
+//             jsonData[i].productName === productName &&
+//             jsonData[i].productDetail === productDetail &&
+//             jsonData[i].productColor === productColor // 修改這裡，將 jsonData 改為 jsonData[i]
+//           ) {
+//             jsonData[i].quantity += parseInt(quantity);
+//             found = true;
+//             break;
+//           }
+//         }
+//         if (!found) {
+//           jsonData.push(newData);
+//         }
+//         fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), (err) => {
+//           if (err) {
+//             console.log("error writing file", err);
+//             return res.status(500).send("error writing ");
+//           }
+//           console.log("JSON file updated successfully");
+//           res.render("sellHome", { products: products });
+//         });
+//       }
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     res.status(500).send("error");
+//   }
+// });
+
 app.post("/sell", async (req, res) => {
   try {
-    const products = await Product.find();
-    const productId = req.body.productId; // 使用 req.body.productId
-    // const products = await Product.findById(productId);
+    const productId = req.body.productId;
+    const product = await Product.findById(productId).populate("details"); // 使用 req.body.productId
     const { productName, productDetail, productColor, quantity } = req.body;
+
+    const detailId = req.query.detailId;
+    const detail = await Detail.findById(detailId);
+    console.log(detailId);
+    console.log(product.details);
+    const products = await Product.find();
 
     const newData = {
       productName: productName,
@@ -323,6 +405,20 @@ app.post("/sell", async (req, res) => {
       productColor: productColor,
       quantity: parseInt(quantity),
     };
+
+    const newSell = new Sell(newData);
+    await newSell.save();
+
+    console.log(product.details);
+
+    // 确保找到了对应的细节记录
+    if (!detail) {
+      return res.status(404).send("Detail not found");
+    }
+
+    // 减少相应的细节记录的数量
+    detail.quantity -= quantity;
+    const updatedDetail = await detail.save();
 
     const filePath = path.join(__dirname, "Sell", `${productId}.json`);
 
