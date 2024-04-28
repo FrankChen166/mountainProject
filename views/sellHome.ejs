@@ -46,6 +46,8 @@
         <button type="submit">送出</button>
       </div>
       <input type="hidden" id="productId" name="productId" value="" />
+      <input type="hidden" id="detailId" name="detailId" value="" />
+      <input type="hidden" name="sellId" value="SELL_ID_HERE" />
     </form>
     <a href="/product"><button>切換至進貨系統</button></a>
     <script>
@@ -55,6 +57,7 @@
           const productId = this.value;
           console.log(productId);
           document.getElementById("productId").value = productId;
+
           // 发起AJAX请求获取JSON数据
           fetch(`/products/${productId}`)
             .then((response) => response.json())

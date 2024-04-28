@@ -100,7 +100,7 @@ app.post("/product/:id", async (req, res) => {
   try {
     const newDetail = new Detail({ name, quantity, color });
     await newDetail.save();
-
+    console.log("detail已存入mongodb");
     const product = await Product.findById(productId).populate("details");
 
     // 將新增的小項加入大項的詳細資訊中
@@ -140,6 +140,52 @@ app.get("/product/:id/detail/detailInfo", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.get(
+  "/product/:id/detail/detailInfo/:detailId/addStock",
+  async (req, res) => {
+    const productId = req.params.id;
+    const product = await Product.findById(productId).populate("details");
+    const detailId = req.query.detailId;
+    const detail = await Detail.findById(detailId);
+    res.render("addStock", { product, detail });
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+);
+
+app.post(
+  "/product/:id/detail/detailInfo/:detailId/addStock",
+  async (req, res) => {
+    try {
+      const productId = req.params.id;
+      const detailId = req.params.detailId;
+      const { quantity } = req.body;
+
+      // 使用新的物件保存更新的資料
+      const newData = { $inc: { quantity: parseInt(quantity) } };
+
+      const updatedDetail = await Detail.findByIdAndUpdate(detailId, newData, {
+        new: true,
+      });
+
+      if (!updatedDetail) {
+        return res.status(404).send("Detail not found");
+      }
+
+      const product = await Product.findById(productId).populate("details");
+      const detail = await Detail.findById(detailId);
+
+      // 重定向到详情页面
+      res.redirect(
+        `/product/${productId}/detail/detailInfo?detailId=${detailId}`
+      );
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal Server Error");
+    }
+  }
+);
 
 app.get("/product/:id/detail/detailInfo/:detailId/edit", async (req, res) => {
   try {
@@ -297,8 +343,8 @@ app.get("/sell", async (req, res) => {
 app.get("/products/:productId", async (req, res) => {
   const products = await Product.find();
   const productId = req.params.productId;
-  // const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
-  const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
+  const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
+  //const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
 
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
@@ -311,93 +357,49 @@ app.get("/products/:productId", async (req, res) => {
   });
 });
 
-// app.post("/sell", async (req, res) => {
-//   try {
-//     const productId = req.body.productId;
-//     const product = await Product.findById(productId).populate("details"); // 使用 req.body.productId
-//     const { productName, productDetail, productColor, quantity } = req.body;
-
-//     const detailId = req.query.detailId;
-//     const detail = await Detail.findById(detailId);
-//     const products = await Product.find();
-
-//     const newSell = new Sell({
-//       productName: productName,
-//       productDetail: productDetail,
-//       productColor: productColor,
-//       quantity: quantity,
-//     });
-
-//     await newSell.save();
-//     detail.quantity -= quantity;
-//     const updatedDetail = await Detail.findByIdAndUpdate(detailId, newData, {
-//       new: true,
-//     });
-//     const newData = {
-//       productName: productName,
-//       productDetail: productDetail,
-//       productColor: productColor,
-//       quantity: parseInt(quantity),
-//     };
-
-//     const filePath = path.join(__dirname, "Sell", `${productId}.json`);
-
-//     fs.readFile(filePath, "utf-8", (err, data) => {
-//       if (err) {
-//         console.log("json file does not exist, creating a new one");
-//         fs.writeFile(filePath, JSON.stringify([newData], null, 2), (err) => {
-//           if (err) {
-//             console.log("error writing file", err);
-//             return res.status(500).send("error writing file");
-//           }
-//           console.log("New JSON file created and data saved successfully");
-//           res.render("sellHome", { products: products });
-//         });
-//       } else {
-//         let jsonData = JSON.parse(data);
-//         let found = false;
-
-//         for (let i = 0; i < jsonData.length; i++) {
-//           if (
-//             jsonData[i].productName === productName &&
-//             jsonData[i].productDetail === productDetail &&
-//             jsonData[i].productColor === productColor // 修改這裡，將 jsonData 改為 jsonData[i]
-//           ) {
-//             jsonData[i].quantity += parseInt(quantity);
-//             found = true;
-//             break;
-//           }
-//         }
-//         if (!found) {
-//           jsonData.push(newData);
-//         }
-//         fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), (err) => {
-//           if (err) {
-//             console.log("error writing file", err);
-//             return res.status(500).send("error writing ");
-//           }
-//           console.log("JSON file updated successfully");
-//           res.render("sellHome", { products: products });
-//         });
-//       }
-//     });
-//   } catch (e) {
-//     console.log(e);
-//     res.status(500).send("error");
-//   }
-// });
-
 app.post("/sell", async (req, res) => {
   try {
     const productId = req.body.productId;
-    const product = await Product.findById(productId).populate("details"); // 使用 req.body.productId
     const { productName, productDetail, productColor, quantity } = req.body;
 
-    const detailId = req.query.detailId;
-    const detail = await Detail.findById(detailId);
-    console.log(detailId);
-    console.log(product.details);
     const products = await Product.find();
+
+    const findDetail = await Detail.findOne({
+      name: productDetail,
+      color: productColor,
+    }).exec();
+    if (!findDetail) {
+      console.log("Detail not found");
+
+      return;
+    }
+
+    const detailId = findDetail._id;
+
+    const detail = await Detail.findById(detailId).populate("sells");
+
+    let existingSell = detail.sells.find(
+      (sell) =>
+        sell.productName === productName &&
+        sell.productDetail === productDetail &&
+        sell.productColor === productColor
+    );
+
+    if (existingSell) {
+      existingSell.quantity += parseInt(quantity);
+      await existingSell.save();
+    } else {
+      const newSell = new Sell({
+        productName: productName,
+        productDetail: productDetail,
+        productColor: productColor,
+        quantity: quantity,
+      });
+      detail.sells.push(newSell);
+      await newSell.save();
+    }
+
+    await detail.save();
 
     const newData = {
       productName: productName,
@@ -406,31 +408,16 @@ app.post("/sell", async (req, res) => {
       quantity: parseInt(quantity),
     };
 
-    const newSell = new Sell(newData);
-    await newSell.save();
-
-    console.log(product.details);
-
-    // 确保找到了对应的细节记录
-    if (!detail) {
-      return res.status(404).send("Detail not found");
-    }
-
-    // 减少相应的细节记录的数量
-    detail.quantity -= quantity;
-    const updatedDetail = await detail.save();
-
     const filePath = path.join(__dirname, "Sell", `${productId}.json`);
 
     fs.readFile(filePath, "utf-8", (err, data) => {
       if (err) {
-        console.log("json file does not exist, creating a new one");
         fs.writeFile(filePath, JSON.stringify([newData], null, 2), (err) => {
           if (err) {
             console.log("error writing file", err);
             return res.status(500).send("error writing file");
           }
-          console.log("New JSON file created and data saved successfully");
+
           res.render("sellHome", { products: products });
         });
       } else {
@@ -441,7 +428,7 @@ app.post("/sell", async (req, res) => {
           if (
             jsonData[i].productName === productName &&
             jsonData[i].productDetail === productDetail &&
-            jsonData[i].productColor === productColor // 修改這裡，將 jsonData 改為 jsonData[i]
+            jsonData[i].productColor === productColor
           ) {
             jsonData[i].quantity += parseInt(quantity);
             found = true;
@@ -456,7 +443,7 @@ app.post("/sell", async (req, res) => {
             console.log("error writing file", err);
             return res.status(500).send("error writing ");
           }
-          console.log("JSON file updated successfully");
+
           res.render("sellHome", { products: products });
         });
       }
@@ -465,6 +452,33 @@ app.post("/sell", async (req, res) => {
     console.log(e);
     res.status(500).send("error");
   }
+});
+
+app.get("/stock", async (req, res) => {
+  const products = await Product.find({});
+
+  res.render("stock", { products });
+});
+
+app.get("/stock/:id", async (req, res) => {
+  const productId = req.params.id;
+  const products = await Product.findById(productId).populate("details");
+  console.log(productId);
+
+  res.render("stockProduct", { products });
+});
+
+app.get("/stock/:id/:detailId", async (req, res) => {
+  const productId = req.params.id;
+  const products = await Product.findById(productId).populate("details");
+
+  const detailId = req.params.detailId;
+  console.log(detailId);
+  const detail = await Detail.findById(detailId).populate("sells");
+
+  const sellId = products.details;
+  const sell = await Sell.findById(sellId);
+  res.send(detail);
 });
 
 app.listen(3000, () => {

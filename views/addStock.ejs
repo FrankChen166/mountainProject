@@ -9,41 +9,26 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <title><%=product.name %>的細項</title>
+    <title>add Stock</title>
   </head>
   <body>
     <%- include("../views/partials/navbar.ejs") %>
-    <div>
-      <% if (detail) { %>
-      <ul>
-        <li>產品細項: <%= detail.name %></li>
-        <li>數量: <%= detail.quantity %></li>
-        <li>顏色: <%= detail.color %></li>
-        <li>進貨時間: <%= detail.arrivalDate %></li>
-      </ul>
-      <%}%>
-    </div>
-
-    <% if (detail && detail._id) { %>
-    <a
-      href="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>/edit"
-      >更改資料</a
-    >
-    <a
-      href="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>/addStock"
-      >進貨</a
-    >
-
+    <h1>add Stock</h1>
     <form
-      action="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>?_method=DELETE"
+      action="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>/addStock"
       method="post"
     >
-      <button type="submit">刪除細項</button>
+      <div>
+        <p><%= detail.name %></p>
+        <p><%= detail.color %></p>
+      </div>
+      <div>
+        <label for="quantity">Product Quantity:</label>
+        <input type="number" name="quantity" id="quantity" required />
+      </div>
+      <button type="submit">Add</button>
     </form>
-
-    <a href="/product">回到產品列</a>
     <a href="/product/<%= product._id%>">回到細項</a>
-    <% } %>
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
