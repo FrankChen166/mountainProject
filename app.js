@@ -145,12 +145,12 @@ app.get(
   "/product/:id/detail/detailInfo/:detailId/addStock",
   async (req, res) => {
     const productId = req.params.id;
+
     const product = await Product.findById(productId).populate("details");
-    const detailId = req.query.detailId;
+    const detailId = req.params.detailId;
+
     const detail = await Detail.findById(detailId);
     res.render("addStock", { product, detail });
-    console.error(err);
-    res.status(500).send("Internal Server Error");
   }
 );
 
@@ -173,8 +173,24 @@ app.post(
         return res.status(404).send("Detail not found");
       }
 
-      const product = await Product.findById(productId).populate("details");
-      const detail = await Detail.findById(detailId);
+      const filePath = path.join(__dirname, "products", `${productId}.json`);
+      let existingData = JSON.parse(fs.readFileSync(filePath, "utf8"));
+
+      const detailIndex = existingData.details.findIndex(
+        (detail) => detail._id === detailId
+      );
+      if (detailIndex === -1) {
+        return res.status(404).send("Detail not found");
+      }
+
+      existingData.details[detailIndex].name = updatedDetail.name;
+      existingData.details[detailIndex].quantity = updatedDetail.quantity;
+      existingData.details[detailIndex].color = updatedDetail.color;
+
+      fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+
+      // const product = await Product.findById(productId).populate("details");
+      // const detail = await Detail.findById(detailId);
 
       // 重定向到详情页面
       res.redirect(
@@ -343,8 +359,8 @@ app.get("/sell", async (req, res) => {
 app.get("/products/:productId", async (req, res) => {
   const products = await Product.find();
   const productId = req.params.productId;
-  const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
-  //const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
+  // const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
+  const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
 
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
@@ -401,6 +417,16 @@ app.post("/sell", async (req, res) => {
 
     await detail.save();
 
+    const Data = { $inc: { quantity: -parseInt(quantity) } };
+
+    const updatedDetail = await Detail.findByIdAndUpdate(detailId, Data, {
+      new: true,
+    });
+
+    if (!updatedDetail) {
+      return res.status(404).send("Detail not found");
+    }
+
     const newData = {
       productName: productName,
       productDetail: productDetail,
@@ -452,33 +478,6 @@ app.post("/sell", async (req, res) => {
     console.log(e);
     res.status(500).send("error");
   }
-});
-
-app.get("/stock", async (req, res) => {
-  const products = await Product.find({});
-
-  res.render("stock", { products });
-});
-
-app.get("/stock/:id", async (req, res) => {
-  const productId = req.params.id;
-  const products = await Product.findById(productId).populate("details");
-  console.log(productId);
-
-  res.render("stockProduct", { products });
-});
-
-app.get("/stock/:id/:detailId", async (req, res) => {
-  const productId = req.params.id;
-  const products = await Product.findById(productId).populate("details");
-
-  const detailId = req.params.detailId;
-  console.log(detailId);
-  const detail = await Detail.findById(detailId).populate("sells");
-
-  const sellId = products.details;
-  const sell = await Sell.findById(sellId);
-  res.send(detail);
 });
 
 app.listen(3000, () => {
