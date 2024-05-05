@@ -274,10 +274,14 @@ app.delete("/product/:id/detail/detailInfo/:detailId", async (req, res) => {
     const productId = req.params.id;
     const detailId = req.params.detailId;
 
-    // 從資料庫中刪除細節資料
-    const deleteResult = await Detail.deleteOne({ _id: detailId });
+    const deleteResult = await Detail.findByIdAndDelete(detailId);
 
     console.log(`Deleted detail with ID ${detailId}:`, deleteResult);
+
+    if (!deleteResult) {
+      console.log(`Detail with ID ${detailId} not found`);
+      return res.status(404).send("Detail not found");
+    }
 
     // 讀取現有的 JSON 檔案
     const filePath = path.join(__dirname, "products", `${productId}.json`);
@@ -316,6 +320,13 @@ app.delete("/product/:id", async (req, res) => {
     const deleteResult = await Product.deleteOne({ _id: productId });
     console.log(`Deleted product with ID ${productId}:`, deleteResult);
 
+    const deleteDetailResult = await Detail.deleteMany({
+      _id: { $in: deleteResult.details },
+    });
+    console.log(
+      `Deleted details associated with product ID ${productId}:`,
+      deleteDetailResult
+    );
     // 從 JSON 檔案中刪除產品
     const productFilePath = path.join(
       __dirname,
@@ -338,6 +349,7 @@ app.delete("/product/:id", async (req, res) => {
       const existingData = JSON.parse(fs.readFileSync(productFilePath, "utf8"));
       if (existingData.details && existingData.details.length > 0) {
         // 如果大项内有细项存在，删除 products 文件夹中的 productId.json 文件
+        console.log("detete");
         fs.unlinkSync(productFilePath);
       }
     }
@@ -378,20 +390,33 @@ app.post("/sell", async (req, res) => {
     const productId = req.body.productId;
     const { productName, productDetail, productColor, quantity } = req.body;
 
+    const product = await Product.findById(productId).populate("details");
+
     const products = await Product.find();
 
-    const findDetail = await Detail.findOne({
-      name: productDetail,
-      color: productColor,
-    }).exec();
+    console.log({ productName });
+
+    const findDetail = product.details.find(
+      (detail) => detail.name === productDetail && detail.color === productColor
+    );
+
     if (!findDetail) {
       console.log("Detail not found");
-
       return;
     }
 
-    const detailId = findDetail._id;
+    // const findDetail = await Detail.findOne({
+    //   name: productDetail,
+    //   color: productColor,
+    // }).exec();
+    // if (!findDetail) {
+    //   console.log("Detail not found");
 
+    //   return;
+    // }
+
+    const detailId = findDetail._id;
+    console.log(`detail : ${detailId}`);
     const detail = await Detail.findById(detailId).populate("sells");
 
     let existingSell = detail.sells.find(
@@ -401,6 +426,7 @@ app.post("/sell", async (req, res) => {
         sell.productColor === productColor
     );
 
+    console.log(`existingSell : ${existingSell}`);
     if (existingSell) {
       existingSell.quantity += parseInt(quantity);
       await existingSell.save();
@@ -413,6 +439,7 @@ app.post("/sell", async (req, res) => {
       });
       detail.sells.push(newSell);
       await newSell.save();
+      console.log("newSell is save");
     }
 
     await detail.save();
@@ -426,6 +453,25 @@ app.post("/sell", async (req, res) => {
     if (!updatedDetail) {
       return res.status(404).send("Detail not found");
     }
+
+    const detailFilePath = path.join(
+      __dirname,
+      "products",
+      `${productId}.json`
+    );
+    let existingData = JSON.parse(fs.readFileSync(detailFilePath, "utf8"));
+
+    const detailIndex = existingData.details.findIndex(
+      (detail) => detail._id === detailId.toString()
+    );
+
+    if (detailIndex === -1) {
+      return res.status(404).send("Detail not founds");
+    }
+
+    existingData.details[detailIndex].quantity = updatedDetail.quantity;
+
+    fs.writeFileSync(detailFilePath, JSON.stringify(existingData, null, 2));
 
     const newData = {
       productName: productName,
@@ -457,6 +503,7 @@ app.post("/sell", async (req, res) => {
             jsonData[i].productColor === productColor
           ) {
             jsonData[i].quantity += parseInt(quantity);
+            console.log("json file would be add");
             found = true;
             break;
           }
