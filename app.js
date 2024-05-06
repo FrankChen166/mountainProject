@@ -316,17 +316,14 @@ app.delete("/product/:id", async (req, res) => {
   try {
     const productId = req.params.id;
 
-    // 從資料庫中刪除產品
-    const deleteResult = await Product.deleteOne({ _id: productId });
-    console.log(`Deleted product with ID ${productId}:`, deleteResult);
+    // 從資料庫中找到要刪除的產品
+    const product = await Product.findById(productId);
 
-    const deleteDetailResult = await Detail.deleteMany({
-      _id: { $in: deleteResult.details },
-    });
-    console.log(
-      `Deleted details associated with product ID ${productId}:`,
-      deleteDetailResult
-    );
+    // 刪除與產品相關的所有細項
+    await Detail.deleteMany({ _id: { $in: product.details } });
+
+    // 刪除產品
+    await Product.deleteOne({ _id: productId });
     // 從 JSON 檔案中刪除產品
     const productFilePath = path.join(
       __dirname,
@@ -371,8 +368,8 @@ app.get("/sell", async (req, res) => {
 app.get("/products/:productId", async (req, res) => {
   const products = await Product.find();
   const productId = req.params.productId;
-  // const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
-  const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
+  const filePath = `/Users/chirenchen/mountainProject/products/${productId}.json`;
+  //const filePath = `C:/Users/Frank/Desktop/mountain/products/${productId}.json`;
 
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
@@ -404,16 +401,6 @@ app.post("/sell", async (req, res) => {
       console.log("Detail not found");
       return;
     }
-
-    // const findDetail = await Detail.findOne({
-    //   name: productDetail,
-    //   color: productColor,
-    // }).exec();
-    // if (!findDetail) {
-    //   console.log("Detail not found");
-
-    //   return;
-    // }
 
     const detailId = findDetail._id;
     console.log(`detail : ${detailId}`);
@@ -525,6 +512,31 @@ app.post("/sell", async (req, res) => {
     console.log(e);
     res.status(500).send("error");
   }
+});
+
+app.get("/chartHome", async (req, res) => {
+  const products = await Product.find();
+  res.render("chartHome", { products });
+});
+
+app.get("/chart/:productId", async (req, res) => {
+  const productId = req.params.productId;
+  const products = await Product.find();
+  res.render("chart", { productId });
+});
+
+app.get("/api/chart/:productId", (req, res) => {
+  const productId = req.params.productId;
+  const filePath = path.join(__dirname, "Sell", `${productId}.json`);
+  fs.readFile(filePath, "utf-8", (err, data) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({ error: "Error reading file" });
+      return;
+    }
+    const jsonData = JSON.parse(data);
+    res.json({ data: jsonData });
+  });
 });
 
 app.listen(3000, () => {

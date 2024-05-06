@@ -1,0 +1,50 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>產品圖表</title>
+  </head>
+  <body>
+    <canvas id="myChart"></canvas>
+  </body>
+  <script>
+    console.log(productId);
+    async function fetchData(productId) {
+      try {
+        const response = await fetch(`/api/chart/${productId}`);
+        const { data } = await response.json();
+
+        // 提取产品名称和数量
+        const productNames = data.map((item) => item.productDetail);
+        const quantities = data.map((item) => item.quantity);
+
+        // 创建一个条形图
+        const ctx = document.getElementById("myChart").getContext("2d");
+        const myChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: productNames,
+            datasets: [
+              {
+                label: "产品数量",
+                data: quantities,
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      } catch (error) {
+        console.error("获取数据时出错:", error);
+      }
+    }
+  </script>
+</html>
