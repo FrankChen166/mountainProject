@@ -9,54 +9,10 @@
     <ul>
       <% products.forEach((product) => { %>
       <li>
-        <a href="#" onclick="fetchData('<%= product._id %>')"
-          ><%= product.name %></a
-        >
+        <a href="/chart/<%=product._id %>"><%= product.name %></a>
       </li>
       <% }) %>
     </ul>
     <canvas id="myChart"></canvas>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      // 定義 fetchData 函數，根據產品 ID 請求相應的 JSON 檔案
-      async function fetchData(productId) {
-        try {
-          const response = await fetch(`/api/chart/${productId}`);
-          const { data } = await response.json();
-
-          // 提取產品名稱和數量
-          const productNames = data.map((item) => item.productDetail);
-          const quantities = data.map((item) => item.quantity);
-
-          // 創建一個長條圖
-          const ctx = document.getElementById("myChart").getContext("2d");
-          const myChart = new Chart(ctx, {
-            type: "bar",
-            data: {
-              labels: productNames,
-              datasets: [
-                {
-                  label: "Product Quantities",
-                  data: quantities,
-                  backgroundColor: "rgba(54, 162, 235, 0.2)",
-                  borderColor: "rgba(54, 162, 235, 1)",
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                y: {
-                  beginAtZero: true,
-                },
-              },
-            },
-          });
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      }
-    </script>
   </body>
 </html>

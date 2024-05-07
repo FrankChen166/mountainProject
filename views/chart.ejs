@@ -3,48 +3,53 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>產品圖表</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <canvas id="myChart"></canvas>
+    <h1 id="productId" style="display: none"><%= productId%></h1>
   </body>
   <script>
-    console.log(productId);
-    async function fetchData(productId) {
-      try {
-        const response = await fetch(`/api/chart/${productId}`);
-        const { data } = await response.json();
+    function fetchData(productId) {
+      fetch(`/api/chart/${productId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const productDetails = data.data.map((item) => ({
+            label: `${item.productDetail} - ${item.productColor}`,
+            quantity: item.quantity,
+          }));
 
-        // 提取产品名称和数量
-        const productNames = data.map((item) => item.productDetail);
-        const quantities = data.map((item) => item.quantity);
-
-        // 创建一个条形图
-        const ctx = document.getElementById("myChart").getContext("2d");
-        const myChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: productNames,
-            datasets: [
-              {
-                label: "产品数量",
-                data: quantities,
-                backgroundColor: "rgba(54, 162, 235, 0.2)",
-                borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: true,
+          const ctx = document.getElementById("myChart").getContext("2d");
+          const myChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: productDetails.map((item) => item.label),
+              datasets: [
+                {
+                  label: "產品数量",
+                  data: productDetails.map((item) => item.quantity),
+                  backgroundColor: "rgba(54, 162, 235, 0.2)",
+                  borderColor: "rgba(54, 162, 235, 1)",
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
               },
             },
-          },
+          });
+        })
+        .catch((error) => {
+          console.error("获取数据时出错:", error);
         });
-      } catch (error) {
-        console.error("获取数据时出错:", error);
-      }
     }
+    document.addEventListener("DOMContentLoaded", function () {
+      const productId = document.getElementById("productId").innerText;
+      fetchData(productId);
+    });
   </script>
 </html>
