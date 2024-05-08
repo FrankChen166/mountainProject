@@ -13,12 +13,16 @@
     <%- include("../views/partials/navbar.ejs") %>
   </head>
   <body>
+    <h3 class="text-center">目前的產品</h3>
     <% for (let product of products) { %>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        <a href="/product/<%= product._id%>"><%= product.name%></a>
-      </li>
-    </ul>
+    <div class="list-group text-center">
+      <button type="button" class="list-group-item list-group-item-action">
+        <a href="/product/<%= product._id%>" class="text-decoration-none"
+          ><%= product.name%></a
+        >
+        <span class="fs-6 text-muted">點選產品查看細項</span>
+      </button>
+    </div>
     <%}%>
   </body>
   <script
