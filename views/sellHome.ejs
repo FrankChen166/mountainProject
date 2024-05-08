@@ -13,43 +13,57 @@
   </head>
   <body>
     <%- include("../views/partials/navbar.ejs") %>
-    <h1>銷貨系統</h1>
-    <form action="/sell" method="POST">
-      <div>
-        <label for="productName">產品品項</label>
-        <select id="productName" name="productName">
+    <h3 class="text-center pt-3">銷貨系統</h3>
+
+    <form action="/sell" method="POST" style="max-width: 300px; margin: 0 auto">
+      <div class="mb-3">
+        <label for="productName" class="form-label">產品品項</label>
+        <select class="form-select" id="productName" name="productName">
           <option value="" selected>請選擇</option>
           <% for(let product of products){ %>
           <option value="<%= product._id %>"><%= product.name %></option>
           <% } %>
         </select>
       </div>
-      <div>
-        <label for="productDetail">產品名稱</label>
-
-        <select id="productDetail" name="productDetail">
+      <div class="mb-3">
+        <label for="productDetail" class="form-label">產品名稱</label>
+        <select class="form-select" id="productDetail" name="productDetail">
           <option value="" selected>請選擇</option>
         </select>
       </div>
-      <div>
-        <label for="productColor">產品顏色</label>
 
-        <select id="productColor" name="productColor">
+      <div class="mb-3">
+        <label for="productColor" class="form-label">產品顏色</label>
+        <select class="form-select" id="productColor" name="productColor">
           <option value="" selected>請選擇</option>
         </select>
       </div>
-      <div>
-        <label for="quantity">賣出數量</label>
-        <input type="number" id="quantity" name="quantity" />
+
+      <div class="mb-3">
+        <label for="quantity" class="form-label">賣出數量</label>
+        <input
+          type="number"
+          id="quantity"
+          name="quantity"
+          required
+          class="form-control"
+          aria-describedby="emailHelp"
+        />
       </div>
-      <div>
-        <button type="submit">送出</button>
+
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-primary" type="button">
+          <a class="text-decoration-none" href="/product" style="color: white"
+            >切換至進貨系統</a
+          >
+        </button>
+        <button class="btn btn-primary" type="submit">送出</button>
       </div>
       <input type="hidden" id="productId" name="productId" value="" />
       <input type="hidden" id="detailId" name="detailId" value="" />
       <input type="hidden" name="sellId" value="SELL_ID_HERE" />
     </form>
-    <a href="/product"><button>切換至進貨系統</button></a>
+    <!-- ---------------------------------------------------------------- -->
     <script>
       document
         .getElementById("productName")

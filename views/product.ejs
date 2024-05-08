@@ -13,18 +13,28 @@
     <%- include("../views/partials/navbar.ejs") %>
   </head>
   <body>
-    <h3 class="text-center">目前的產品</h3>
-    <% for (let product of products) { %>
-    <div class="list-group text-center">
-      <button type="button" class="list-group-item list-group-item-action">
-        <a href="/product/<%= product._id%>" class="text-decoration-none"
-          ><%= product.name%></a
-        >
-        <span class="fs-6 text-muted">點選產品查看細項</span>
-      </button>
+    <h3 class="text-center pt-3">目前的產品</h3>
+    <div class="container text-center">
+      <% for (let product of products) { %>
+      <div class="row justify-content-center">
+        <div class="col-auto">
+          <div class="list-group mb-3" style="width: 300px">
+            <button
+              type="button"
+              class="list-group-item list-group-item-action"
+            >
+              <a href="/product/<%= product._id%>" class="text-decoration-none"
+                ><%= product.name%></a
+              >
+              <span class="fs-6 text-muted">點選產品查看細項</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <% } %>
     </div>
-    <%}%>
   </body>
+
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
     integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"

@@ -14,25 +14,31 @@
   <body>
     <%- include("../views/partials/navbar.ejs") %>
 
-    <div class="list-group text-center pt-3">
-      <button
-        type="button"
-        class="list-group-item list-group-item-action active"
-        aria-current="true"
-      >
-        目前<%=product.name %>的細項
-      </button>
+    <div class="container text-center">
+      <h3 class="pt-3">目前<%=product.name %>的細項</h3>
       <% for( let detail of product.details) { %>
-      <button type="button" class="list-group-item list-group-item-action">
-        <a
-          href="/product/<%= product._id %>/detail/detailInfo?detailId=<%= detail._id %>"
-        >
-          品項: <%= detail.name %>
-        </a>
-      </button>
-      <%}%>
+      <div class="row justify-content-center">
+        <div class="col-auto">
+          <div class="list-group mb-2 gap-3" style="width: 300px">
+            <button
+              type="button"
+              class="list-group-item list-group-item-action"
+              style="width: 300px"
+            >
+              <a
+                class="text-decoration-none"
+                href="/product/<%= product._id %>/detail/detailInfo?detailId=<%= detail._id %>"
+              >
+                品項: <%= detail.name %>
+              </a>
+            </button>
+            <%}%>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="row row-cols-auto pt-3 text-center justify-content-center">
+
+    <div class="row row-cols-auto text-center justify-content-center">
       <div class="col">
         <form action="/product/<%= product._id %>?_method=DELETE" method="post">
           <button type="submit" class="btn btn-danger btn-sm">刪除細項</button>

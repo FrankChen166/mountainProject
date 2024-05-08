@@ -13,22 +13,43 @@
   </head>
   <body>
     <%- include("../views/partials/navbar.ejs") %>
-    <h1>add Stock</h1>
+    <h3 class="text-center pt-3">追加存貨</h3>
+
     <form
       action="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>/addStock"
       method="post"
+      style="max-width: 300px; margin: 0 auto"
     >
-      <div>
+      <div class="mb-3 pt-3">
         <p>品項 : <%= detail.name %></p>
         <p>顏色 : <%= detail.color %></p>
+        <div class="row g-3 align-items-center">
+          <div class="col-auto">
+            <label for="name" class="col-form-label">數量</label>
+          </div>
+          <div class="col-auto">
+            <input
+              type="number"
+              name="quantity"
+              id="quantity"
+              class="form-control"
+              aria-describedby="passwordHelpInline"
+            />
+          </div>
+        </div>
       </div>
-      <div>
-        <label for="quantity">數量</label>
-        <input type="number" name="quantity" id="quantity" required />
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-primary" type="button">
+          <a
+            class="text-decoration-none"
+            href="/product/<%= product._id%>"
+            style="color: white"
+            >回到細項</a
+          >
+        </button>
+        <button class="btn btn-primary" type="submit">加入</button>
       </div>
-      <button type="submit">Add</button>
     </form>
-    <a href="/product/<%= product._id%>">回到細項</a>
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"

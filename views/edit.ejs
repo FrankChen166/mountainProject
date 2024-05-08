@@ -13,44 +13,59 @@
   </head>
   <body>
     <%- include("../views/partials/navbar.ejs") %>
-    <h1>Edit Product</h1>
+    <h3 class="text-center pt-3">更改資料</h3>
+
     <form
       action="/product/<%= product._id %>/detail/detailInfo/<%= detail._id %>/edit"
       method="post"
+      style="max-width: 300px; margin: 0 auto"
     >
-      <div>
-        <label for="name">Product Name:</label>
+      <div class="mb-3">
+        <label for="name" class="form-label">產品名稱</label>
         <input
           type="text"
           name="name"
           id="name"
           required
-          value=" <%= detail.name %>"
+          value="<%= detail.name %>"
+          class="form-control"
+          aria-describedby="emailHelp"
         />
       </div>
-      <div>
-        <label for="quantity">Product Quantity:</label>
+      <div class="mb-3">
+        <label for="quantity" class="form-label">數量</label>
         <input
           type="number"
           name="quantity"
           id="quantity"
           required
           value="<%= detail.quantity%>"
+          class="form-control"
         />
       </div>
-      <div>
-        <label for="color">Product Color:</label>
+      <div class="mb-3">
+        <label for="color" class="form-label">產品顏色</label>
         <input
           type="text"
           name="color"
           id="color"
           required
           value="<%= detail.color %>"
+          class="form-control"
         />
       </div>
-      <button type="submit">Update</button>
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-primary" type="button">
+          <a
+            class="text-decoration-none"
+            href="/product/<%= product._id%>"
+            style="color: white"
+            >回到細項</a
+          >
+        </button>
+        <button class="btn btn-primary" type="submit">更新</button>
+      </div>
     </form>
-    <a href="/product/<%= product._id%>">回到細項</a>
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
