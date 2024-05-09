@@ -9,18 +9,21 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
-    <title>繪圖</title>
+    <title>繪製圖表</title>
   </head>
   <body>
     <%- include("../views/partials/navbar.ejs") %>
-    <ul>
+    <h3 class="text-center pt-3">可繪製圖表的產品</h3>
+
+    <ul class="list-group text-center" style="max-width: 300px; margin: 0 auto">
       <% products.forEach((product) => { %>
-      <li>
-        <a href="/chart/<%=product._id %>"><%= product.name %></a>
+      <li class="list-group-item">
+        <a href="/chart/<%=product._id %>" class="text-decoration-none"
+          ><%= product.name %></a
+        >
       </li>
       <% }) %>
     </ul>
-    <canvas id="myChart"></canvas>
   </body>
   <script
     src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"

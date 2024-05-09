@@ -477,7 +477,10 @@ app.post("/sell", async (req, res) => {
             return res.status(500).send("error writing file");
           }
 
-          res.render("sellHome", { products: products });
+          // res.render("sellHome", { products: products });
+          res.redirect(
+            `/product/${productId}/detail/detailInfo?detailId=${detailId}`
+          );
         });
       } else {
         let jsonData = JSON.parse(data);
@@ -504,7 +507,10 @@ app.post("/sell", async (req, res) => {
             return res.status(500).send("error writing ");
           }
 
-          res.render("sellHome", { products: products });
+          // res.render("sellHome", { products: products });
+          res.redirect(
+            `/product/${productId}/detail/detailInfo?detailId=${detailId}`
+          );
         });
       }
     });
