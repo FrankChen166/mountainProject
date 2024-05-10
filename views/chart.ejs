@@ -14,10 +14,38 @@
   <body>
     <%- include("../views/partials/navbar.ejs") %>
     <h3 class="text-center pt-3">請點選要繪製的圖表</h3>
-    <button class="chartType" data-type="bar">長條圖</button>
-    <button class="chartType" data-type="doughnut">甜甜圈圖</button>
-    <button class="chartType" data-type="pie">圓餅圖</button>
-    <canvas id="myChart"></canvas>
+    <div class="text-center pt-3">
+      <button
+        data-type="bar"
+        type="button"
+        class="btn btn-primary btn-lg chartType"
+      >
+        長條圖
+      </button>
+      <button
+        data-type="doughnut"
+        type="button"
+        class="btn btn-primary btn-lg chartType"
+      >
+        甜甜圈圖
+      </button>
+      <button
+        data-type="pie"
+        type="button"
+        class="btn btn-primary btn-lg chartType"
+      >
+        圓餅圖
+      </button>
+    </div>
+    <!-- <button class="chartType" data-type="bar">長條圖</button> -->
+    <!-- <button class="chartType" data-type="doughnut">甜甜圈圖</button> -->
+    <!-- <button class="chartType" data-type="pie">圓餅圖</button> -->
+    <div
+      style="height: 600px"
+      class="d-flex justify-content-center align-items-center"
+    >
+      <canvas id="myChart" class="pt-3"></canvas>
+    </div>
     <h1 id="productId" style="display: none"><%= productId%></h1>
   </body>
   <script>
